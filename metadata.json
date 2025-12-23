@@ -1,0 +1,7 @@
+{
+  "name": "Liquid.AI: El Rastreador Institucional",
+  "description": "Herramienta avanzada de trading institucional que identifica piscinas de liquidez, zonas de inducción y vacíos de mercado para evitar que seas la liquidez del mercado.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
