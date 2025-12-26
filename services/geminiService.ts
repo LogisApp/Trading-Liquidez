@@ -18,6 +18,8 @@ REGLAS DE ORO:
 3. Nunca des consejos financieros. Da recordatorios de reglas y gestión de riesgo.
 4. Diferencia entre "Break of Structure" (Cuerpo rompe nivel) y "Liquidity Sweep" (Solo mecha).
 
+IMPORTANTE: Todas tus respuestas, descripciones de zonas, resúmenes estructurales y consejos DEBEN estar estrictamente en español. No utilices inglés salvo para términos técnicos de trading que no tengan traducción común (ej. POI, Stop Loss, Take Profit, FVG).
+
 Cuando analices imágenes, devuelve un JSON estructurado con las coordenadas (porcentajes de 0 a 100) de las zonas críticas detectadas.
 `;
 
@@ -26,21 +28,24 @@ export const analyzeChartImage = async (base64Image: string): Promise<AnalysisRe
   
   const prompt = `
     Analiza este gráfico de trading e identifica las zonas institucionales críticas siguiendo tus reglas de mentor.
+    
+    REQUISITO FUNDAMENTAL: Todo el texto generado dentro del JSON debe estar en español.
+
     Devuelve la respuesta estrictamente en el siguiente formato JSON:
     {
-      "summary": "Breve resumen de la estructura actual (Bullish/Bearish/Consolidating)",
+      "summary": "Resumen detallado en español de la estructura actual (Alcista/Bajista/Consolidación)",
       "zones": [
         {
           "type": "MAJOR_STRUCTURE | TRAP_INDUCTION | HIGH_PROB_POI | WICK_RETEST",
-          "label": "Nombre de la zona",
-          "description": "Por qué es importante",
+          "label": "Nombre de la zona en español",
+          "description": "Explicación en español de por qué esta zona es importante",
           "probability": "High | Medium | Low",
           "coordinates": { "x": 10, "y": 20, "width": 30, "height": 5 }
         }
       ],
-      "mentorAdvice": "Consejo directo de disciplina sobre no entrar impulsivamente.",
-      "slRationale": "Explicación técnica de dónde colocar el Stop Loss basado en la liquidez o el barrido detectado.",
-      "tpRationale": "Explicación técnica de dónde colocar el Take Profit basándose en la piscina de liquidez opuesta."
+      "mentorAdvice": "Consejo de disciplina en español sobre la paciencia y el riesgo.",
+      "slRationale": "Explicación técnica en español de la ubicación del Stop Loss.",
+      "tpRationale": "Explicación técnica en español del objetivo de Take Profit."
     }
   `;
 
@@ -68,9 +73,9 @@ export const analyzeChartImage = async (base64Image: string): Promise<AnalysisRe
 
     const result = JSON.parse(response.text || '{}');
     return {
-      summary: result.summary || "No se pudo determinar el resumen.",
+      summary: result.summary || "No se pudo determinar el resumen estructural.",
       zones: (result.zones || []).map((z: any, i: number) => ({ ...z, id: `zone-${i}` })),
-      mentorAdvice: result.mentorAdvice || "Mantén la disciplina.",
+      mentorAdvice: result.mentorAdvice || "Mantén la disciplina y espera confirmación.",
       slRationale: result.slRationale,
       tpRationale: result.tpRationale
     };
@@ -97,7 +102,7 @@ export const getMentorResponse = async (history: {role: string, parts: any[]}[],
       model,
       contents,
       config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+        systemInstruction: SYSTEM_INSTRUCTION + "\nResponde siempre en español.",
         temperature: 0.7
       }
     });
