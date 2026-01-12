@@ -1,5 +1,5 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { AnalysisResult, ZoneType } from '../types';
 
 interface ChartDisplayProps {
@@ -11,7 +11,6 @@ interface ChartDisplayProps {
 
 const ChartDisplay: React.FC<ChartDisplayProps> = ({ image, analysis, loading, onUpload }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
   const [activeZone, setActiveZone] = useState<string | null>(null);
 
   const getZoneStyle = (type: ZoneType) => {
@@ -21,6 +20,16 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({ image, analysis, loading, o
       case ZoneType.HIGH_PROB_POI: return 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.4)]';
       case ZoneType.WICK_RETEST: return 'border-amber-500 bg-amber-500/10 shadow-[0_0_10px_rgba(245,158,11,0.3)]';
       default: return 'border-zinc-500 bg-zinc-500/10';
+    }
+  };
+
+  const getFriendlyTypeName = (type: ZoneType) => {
+    switch (type) {
+      case ZoneType.MAJOR_STRUCTURE: return 'Estructura Mayor';
+      case ZoneType.TRAP_INDUCTION: return 'Inducción / Trampa';
+      case ZoneType.HIGH_PROB_POI: return 'POI de Alta Probabilidad';
+      case ZoneType.WICK_RETEST: return 'Retesteo de Mecha';
+      default: return 'Zona de Interés';
     }
   };
 
@@ -87,9 +96,25 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({ image, analysis, loading, o
               onMouseLeave={() => setActiveZone(null)}
             >
               {/* Tooltip on Hover */}
-              <div className={`absolute bottom-full left-0 mb-2 w-48 bg-zinc-900 border border-zinc-700 p-2 rounded-lg text-xs shadow-xl transition-opacity duration-300 pointer-events-none ${activeZone === zone.id ? 'opacity-100' : 'opacity-0'}`}>
-                <p className="font-bold text-emerald-400 mb-1">{zone.label}</p>
-                <p className="text-zinc-300 leading-tight">{zone.description}</p>
+              <div className={`absolute ${zone.coordinates.y < 20 ? 'top-full mt-2' : 'bottom-full mb-2'} left-0 w-72 bg-zinc-900/95 border border-zinc-700 p-4 rounded-2xl text-xs shadow-2xl transition-all duration-300 pointer-events-none backdrop-blur-md ${activeZone === zone.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-zinc-800">
+                    <span className={`w-2 h-2 rounded-full ${
+                        zone.type === ZoneType.HIGH_PROB_POI ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
+                        zone.type === ZoneType.TRAP_INDUCTION ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' :
+                        zone.type === ZoneType.MAJOR_STRUCTURE ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                    }`}></span>
+                    <p className="font-bold text-zinc-100 uppercase tracking-wider">{getFriendlyTypeName(zone.type)}</p>
+                    <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-black ${
+                        zone.probability === 'High' ? 'bg-emerald-500/10 text-emerald-400' : 
+                        zone.probability === 'Medium' ? 'bg-amber-500/10 text-amber-400' : 'bg-red-500/10 text-red-400'
+                    }`}>
+                        {zone.probability}
+                    </span>
+                </div>
+                <p className="font-black text-emerald-400 mb-2 text-[13px] leading-tight">{zone.label}</p>
+                <p className="text-zinc-400 leading-relaxed italic">
+                   {zone.description}
+                </p>
               </div>
             </div>
           ))}
